@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  
+  database:
+    image: mongo
+    container_name: mongo-container
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - fs-app
+    ports:
+      - 27016:27017
+
+
+  backend:
+    image: tarek168/nodejs-be:1.0
+    container_name: node-app-container
+    restart: always
+    environment:
+      - MONGO_URL=mongodb://database:27017/ums
+    networks:
+      - fs-app
+    ports:
+      - 8001:8000
+    depends_on:
+      - database
+
+  
+  frontend:
+    image: tarek168/react-fe:1.0
+    container_name: react-app-container
+    restart: always
+    ports:
+      - 3001:3000
+    environment:
+      - REACT_APP_API_URL=http://localhost:8001
+    networks:
+      - fs-app  
+
+networks:
+  fs-app:
+    driver: bridge
+
+volumes:
+  mongo-data: {}
